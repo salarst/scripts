@@ -4,7 +4,14 @@ import sys
 import init_agent
 import init_server
 import time
-
+'''
+	functions:
+		1.init agent server
+		2.init server
+			deploy ntp
+			ssh key login
+			disk format
+'''
 
 def deploy_ntp(hostFile,ntpServerIP):
 	'''
