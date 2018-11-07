@@ -49,7 +49,7 @@ def Usage():
 		use "main.py -f hostFile -s USERNAME:PASSWORD -l script.tar.gz" to initial target server
 		use -h for help
 	''')
-def main():
+def main(argv):
 	local_path = None
 	hostFile = None
 	username = None
@@ -103,13 +103,10 @@ def main():
 	else:
 		print('please give enough args to deploy ntp!')
 		
-	
-	
-                
-
+		              
 if __name__ == '__main__':
-        color = colors.colors()
-        main(sys.argv[1:])
-        if len(sys.argv) < 2 :
-            usage()
+	if len(sys.argv) <2:
+		Usage()
+	else:
+		main(sys.argv[1:])
 
