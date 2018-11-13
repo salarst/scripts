@@ -1,4 +1,5 @@
 Description:
+
 	main.py read the config file main.conf to deploy codis cluster
 
 
@@ -9,4 +10,9 @@ configFile:
 	main.conf: is dependence by main.py.  main.py read all confing and deploy codis to nodes. read this file for detail.
 
 adminStript:
+
 	for admin codis service. use these scripts to start/stop services.
+	
+resources:
+	
+	please download binary zookeeper packages and binary codis packages on it. and modify the packageName in main.conf
