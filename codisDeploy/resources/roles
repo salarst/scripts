@@ -1,0 +1,32 @@
+#yaml format
+
+codis-server:
+#must bu list
+  - node1
+  - node2
+  - node3
+
+codis-proxy:
+#must bu list
+  - node1
+
+codis-dashboard:
+#must bu list
+  - node3
+
+codis-fe:
+#must bu list
+  - node3
+
+codis-sentinel:
+#must bu list
+  - node1
+  - node2
+  - node3
+
+zk:
+#must bu list
+  - node1
+  - node2
+  - node3
+
