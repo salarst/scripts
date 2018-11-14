@@ -1,10 +1,16 @@
 #!/usr/bin/python
 #coding:utf8
-import codis_deploy
+import codisDeploy
 import colors
+import subprocess
 
 def main():
-    deploy = codis_deploy.deployCodis('resources/main.conf')
+    with open('resources/install.txt','rb+') as fd:
+        tmp = fd.readlines()
+    if 'DONE' in tmp:
+        p = subprocess.Popen('rm -rf resources/install.txt')
+        p.wait()
+    deploy = codisDeploy.deployCodis('resources/main.conf')
     with open('resources/install.txt','rb+') as fd:
         tmp = fd.readlines()
         if not ('INIT END\n' in tmp):
@@ -21,6 +27,7 @@ def main():
             deploy.install_codis_fe()
         if not ('CODIS-SENTINEL END\n' in tmp):
              deploy.install_codis_sentinel()
+
 
 if __name__  == '__main__':
     color = colors.colors()
