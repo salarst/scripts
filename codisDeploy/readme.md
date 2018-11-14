@@ -15,8 +15,10 @@ Deployment:
 		
 	configFile:
 		
-		hosts: this file records deployment nodes's hostname and IP. it will written to hosts file of each deployment node by scripts.
-		roles: the role information is defined in this file,the scrips will deployes the corresponding components to the corresponding 
+		hosts: this file records deployment nodes's hostname and IP. it will written to hosts file of each deployment 
+		node by scripts.
+		roles: the role information is defined in this file,the scrips will deployes the corresponding components to 
+		the corresponding 
 				machine
 		main.conf: this file is the main config file. this file records all configuration information for all components.
 		
@@ -28,7 +30,8 @@ Deployment:
 		
 	resources:
 		
-		please download binary zookeeper packages and binary codis packages to resources direcotry. and modify the packageName in main.conf.
+		please download binary zookeeper packages and binary codis packages to resources direcotry. and modify the 
+		packageName in main.conf.
 		
 	install:
 		#dos2unix all scrips and files. cause the file is generate on windows server.
