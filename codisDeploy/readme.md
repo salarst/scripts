@@ -1,7 +1,7 @@
 Description:
 
-	this is a script to automate the deployment of a codis cluster. if each components of codis is sucessfully deployed on each machine.
-	it will be recored the component name in resources/install.txt.
+	this is a script to automate the deployment of a codis cluster. if each components of codis is 
+	sucessfully deployed on each machine.it will be recored the component name in resources/install.txt.
 	
 	
 
