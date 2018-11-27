@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding:utf8
-#v1.1
+#v1.2
 import os
 import sys
 import yaml
@@ -35,21 +35,36 @@ class deployCodis():
         try:
             os.mknod('%s/install.txt' % self.resourcePath)
         except Exception as e:
-            var = raw_input()
+            pass
 
     def ssh_handler(self, hostname, port=22):
         pkey = paramiko.RSAKey.from_private_key_file('/root/.ssh/id_rsa')
-        t = paramiko.Transport((hostname, port))
-        try:
-            t.connect(username='root', pkey=pkey)
-        except Exception as e:
-            print('ssh login error: %s' % e)
-            sys.exit(1)
         ssh = paramiko.SSHClient()
-        ssh._transport = t
+
+        try:
+            ssh.connect(hostname=hostname, port=port, username='root', pkey=pkey, timeout=10)
+        except Exception as e:
+            print(color.color['red'] + 'ssh login %s error: %s' %(hostname,e) + color.end)
+            ssh.close()
+            sys.exit(1)
         return ssh
 
+    def checkConfig(self):
+        #check authentication server by ssh key
+        with open(self.config['Dependencies']['dnsFile'],'r') as fd:
+            for i in fd.readlines():
+                ip = i.split()[0]
+                self.ssh_handler(ip)
+        #confirm the packages is exists?
+        zk = self.config['Packages']['path']/self.config['Packages']['zookeeperPackageName']
+        codis = self.config['Packages']['path'] / self.config['Packages']['codisPackageName']
+        if not (os.path.exists(codis) and os.path.exists(zk)):
+            print(color.color[red] + 'please confirm the install packages is exists in the %s directory'%self.config['Packages']['path'] + color.end)
+            sys.exit(1)
+
+
     def baseInit(self):
+        self.checkConfig()
         subprocess.Popen('cat %s/hosts >> /etc/hosts' % self.resourcePath, shell=True)
         for i in self.zkNodes:
             print(i)
@@ -70,17 +85,13 @@ class deployCodis():
         while not stdout.channel.exit_status_ready():
             time.sleep(1)
 
-    def decorator_isRecord(self,func):
-        def check(record,count):
-            if count == 0:
-                return func(record,count)
-        return check
-
-
-    @decorator_isRecord
-    def recordOperations(self, record,count):
+    def recordOperations(self,record,count):
         with open('%s/install.txt' % self.resourcePath, 'ab+') as fd:
-            fd.write('%s END\n' % record)
+            if count == 0:
+                fd.write('%s END\n' % record)
+            else:
+                fd.write('%s FAIL\n' % record)
+
 
     def checkServiceStatus(self, host, cmd, serviceName):
         color = colors.colors()
@@ -183,7 +194,7 @@ class deployCodis():
 
                 cmd = 'netstat -tlnp | grep %s' % j
                 serviceName = 'codis-server %s' % j
-                staus = self.checkServiceStatus(i, cmd, serviceName)
+                status = self.checkServiceStatus(i, cmd, serviceName)
                 count += status
             ssh.close()
         self.recordOperations('CODIS-SEV',count)
