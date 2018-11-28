@@ -3,15 +3,19 @@
 import codisDeploy
 import colors
 import subprocess
+import os
 
 def main():
-    with open('resources/install.txt','rb+') as fd:
+    filename = 'resources/install.txt'
+    if not os.path.exists(filename):
+        subprocess.Popen('touch %s'%filename,shell=True)
+    with open(filename,'rb+') as fd:
         tmp = fd.readlines()
-    if 'DONE' in tmp:
-        p = subprocess.Popen('rm -rf resources/install.txt')
+    if 'DONE\n' in tmp:
+        p = subprocess.Popen('rm -rf %s'%filename,shell=True)
         p.wait()
     deploy = codisDeploy.deployCodis('resources/main.conf')
-    with open('resources/install.txt','rb+') as fd:
+    with open(filename,'rb+') as fd:
         tmp = fd.readlines()
         if not ('INIT END\n' in tmp):
             deploy.baseInit()
@@ -28,7 +32,9 @@ def main():
         if not ('CODIS-SENTINEL END\n' in tmp):
              deploy.install_codis_sentinel()
 
-
 if __name__  == '__main__':
     color = colors.colors()
     main()
+    with open('resources/install.txt', 'ab+') as fd:
+        fd.write('DONE\n')
+

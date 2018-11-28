@@ -18,6 +18,7 @@ class deployCodis():
 
     def __init__(self, configFile):
         fd = open(configFile)
+        self.color = colors.colors()
         self.config = yaml.load(fd)
         fd.close()
         self.zkConfig = self.config['zkConfig']
@@ -40,11 +41,11 @@ class deployCodis():
     def ssh_handler(self, hostname, port=22):
         pkey = paramiko.RSAKey.from_private_key_file('/root/.ssh/id_rsa')
         ssh = paramiko.SSHClient()
-
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             ssh.connect(hostname=hostname, port=port, username='root', pkey=pkey, timeout=10)
         except Exception as e:
-            print(color.color['red'] + 'ssh login %s error: %s' %(hostname,e) + color.end)
+            print(self.color.color['red'] + 'ssh login %s error: %s' %(hostname,e) + self.color.end)
             ssh.close()
             sys.exit(1)
         return ssh
@@ -56,21 +57,24 @@ class deployCodis():
                 ip = i.split()[0]
                 self.ssh_handler(ip)
         #confirm the packages is exists?
-        zk = self.config['Packages']['path']/self.config['Packages']['zookeeperPackageName']
-        codis = self.config['Packages']['path'] / self.config['Packages']['codisPackageName']
+        zk = self.config['Packages']['path']+'/'+self.config['Packages']['zookeeperPackageName']
+        codis = self.config['Packages']['path'] + '/' + self.config['Packages']['codisPackageName']
         if not (os.path.exists(codis) and os.path.exists(zk)):
-            print(color.color[red] + 'please confirm the install packages is exists in the %s directory'%self.config['Packages']['path'] + color.end)
+            print(self.color.color['red'] + 'please confirm the install packages is exists in the %s directory'%self.config['Packages']['path'] + self.color.end)
             sys.exit(1)
 
 
     def baseInit(self):
         self.checkConfig()
         subprocess.Popen('cat %s/hosts >> /etc/hosts' % self.resourcePath, shell=True)
+        p = subprocess.Popen('yum -y install dos2unix',shell=True)
+        p.wait()
+        subprocess.Popen('chmod +x resources/adminScript/* && dos2unix resources/adminScript/*',shell=True)
         for i in self.zkNodes:
             print(i)
             ssh = self.ssh_handler(i)
             for j in self.config['DeployPath'].values():
-                ssh.exec_command('mkdir -pv %s' % j)
+                ssh.exec_command('mkdir -pv %s' %j)
             ssh.close()
         for i in self.zkNodes:
             ssh = self.ssh_handler(i)
@@ -94,18 +98,17 @@ class deployCodis():
 
 
     def checkServiceStatus(self, host, cmd, serviceName):
-        color = colors.colors()
         ssh = self.ssh_handler(host)
         stdin, stdout, stderr = ssh.exec_command('%s' %cmd)
         self.wait_for_finish(stdout)
         print('check %s status on %s' % (serviceName, host))
         if stdout.channel.recv_exit_status() == 0:
-            print('%s%s start sucess!%s' % (color.color['green'], serviceName, color.end))
+            print('%s%s start sucess!%s' % (self.color.color['green'], serviceName, self.color.end))
             print(stdout.read())
             ssh.close()
             return 0
         else:
-            print('%s%s start failed!%s' % (color.color['red'], serviceName, color.end))
+            print('%s%s start failed!%s' % (self.color.color['red'], serviceName, self.color.end))
             ssh.close()
             return 1
 
@@ -115,10 +118,13 @@ class deployCodis():
 
         for i in self.zkNodes:
             ssh = self.ssh_handler(i)
-            subprocess.Popen(
+            p = subprocess.Popen(
                 'scp -o StrictHostKeyChecking=no %s/%s  %s:/tmp' % (self.resourcePath, zookeeperPackageName, i),
                 shell=True)
+            p.wait()
             stdin,stdout,stderr = ssh.exec_command('tar xf /tmp/%s -C %s' % (zookeeperPackageName, zookeeperPath))
+            self.wait_for_finish(stdout)
+            stdin,stdout,stderr = ssh.exec_command('chown -R root.root /data/apps/zookeeper*')
             self.wait_for_finish(stdout)
             if not self.zkDirName:
                 stdin, stdout, stderr = ssh.exec_command('cd /data/apps/zookeeper*;pwd')
@@ -156,6 +162,8 @@ class deployCodis():
             p.wait()
             stdin, stdout, stderr = ssh.exec_command('tar xf /tmp/%s -C %s' % (codisPackageName, codisPath))
             self.wait_for_finish(stdout)
+            stdin,stdout,stderr = ssh.exec_command('chown -R root.root /data/apps/codis*')
+            self.wait_for_finish(stdout)
             if not self.codisDirName:
                 stdin, stdout, stderr = ssh.exec_command('cd /data/apps/codis*;pwd')
                 self.codisDirName = stdout.read().strip('\n')
@@ -169,7 +177,7 @@ class deployCodis():
                 instanceAdminScript = '%s/bin/codis-server-%s.sh' % (self.codisDirName, j)
                 p = subprocess.Popen('scp %s/%s %s:%s' % (self.resourcePath, sampleFile, i, redisConfig), shell=True)
                 p.wait()
-                p = subprocess.Popen('scp %s %s:%s' % (adminScript, i, instanceAdminScript), shell=True)
+                p = subprocess.Popen('scp %s %s:%s ' % (adminScript, i, instanceAdminScript), shell=True)
                 p.wait()
                 # script setting
                 ssh.exec_command("sed -i 's#PORT#%s#g' %s" % (j, instanceAdminScript))
