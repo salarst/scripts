@@ -11,7 +11,7 @@ Deployment:
 	
 		1.jdk for zookeeper
 		2.python 2.7.x 
-		3.the machine which scrips run on require ssh key login to deployment node.
+		3.the machine which scrips run on require ssh key login to deployment node as root and port is 22.
 		
 	configFile:
 		
