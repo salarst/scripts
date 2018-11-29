@@ -69,7 +69,7 @@ class deployCodis():
         subprocess.Popen('cat %s/hosts >> /etc/hosts' % self.resourcePath, shell=True)
         p = subprocess.Popen('yum -y install dos2unix',shell=True)
         p.wait()
-        subprocess.Popen('chmod +x resources/adminScript/* && dos2unix resources/adminScript/*',shell=True)
+        subprocess.Popen('chmod +x resources/adminScript/* && dos2unix resources/*',shell=True)
         for i in self.zkNodes:
             print(i)
             ssh = self.ssh_handler(i)
