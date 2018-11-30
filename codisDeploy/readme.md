@@ -1,19 +1,19 @@
-Description:
+## Description:
 
 	this is a script to automate the deployment of a codis cluster. if each components of codis is 
 	sucessfully deployed on each machine.it will be recored the component name in resources/install.txt.
 	
 	
 
-Deployment:
+## Deployment:
 
-	require:
-	
-		1.jdk for zookeeper
-		2.python 2.7.x 
-		3.the machine which scrips run on require ssh key login to deployment node as root and port is 22.
+###  require:
+
+	  1.jdk for zookeeper 
+      2.python 2.7.x 
+      3.the machine which scrips run on require ssh key login to deployment node as root and port is 22.
 		
-	configFile:
+###  configFile:
 		
 		hosts: this file records deployment nodes's hostname and IP. it will written to hosts file of each 
 		deployment node by scripts.
@@ -24,28 +24,28 @@ Deployment:
 		
 		see the file for details.
 
-	adminStript:
+###  adminStript:
 
 		these scrips are the startup scrips for all components. all scrips are store in $codisDir/bin direcotry.
 		
-	resources:
+###  resources:
 		
 		please download binary zookeeper packages and binary codis packages to resources direcotry. and 
 		modify the packageName in main.conf.
 		
-	install:
-		#dos2unix all scrips and files. cause the file is generate on windows server.
+###  install:
+		dos2unix all scrips and files. cause the file is generate on windows server.
 		
-			python main.py 
+			python main.py
 		
-		# if you want skip deployment of some components.you can write "COMPONET_NAME END" to install.txt,require
+		 if you want skip deployment of some components.you can write "COMPONET_NAME END" to install.txt,require
 		"\n".the following are all the components name
 			
-				CODIS-FE
-				CODIS-SEV
-				CODID-DASHBOARD
-				ZK
-				CODIS-PROXY
-				CODIS-SENTINEL
+				 CODIS-FE
+				 CODIS-SEV
+				 CODID-DASHBOARD
+				 ZK
+				 CODIS-PROXY
+				 CODIS-SENTINEL
 		
 				
