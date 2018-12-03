@@ -1,7 +1,8 @@
 #!/bin/bash
 #description:
-#	create a user can only user specified command
+#	create a user can only use specified commands
 source /etc/profile
+
 cmd_list='ls cat tail less more bash ps top free ip ss netstat ifconfig grep df'
 dst_bin_path="/home/${1}/bin"
 dst_lib64_path="/home/${1}/lib64"
