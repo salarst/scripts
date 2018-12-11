@@ -1,0 +1,11 @@
+---
+- name: install && config redis server
+  hosts: redis
+  gather_facts: True
+  vars_prompt:
+    - name: redispassword
+      prompt: 'setting redis password,please input the password!'
+      confirm: yes
+      default: redis 
+  roles: 
+  - redis

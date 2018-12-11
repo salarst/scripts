@@ -1,0 +1,45 @@
+---
+- name: uncompress redis.tar.gz
+  unarchive:
+    src: redis-3.2.11.tar.gz
+    dest: /tmp/
+    #remote_src: yes
+- name: install make gcc
+  yum:
+    name: "{{ packages }}"
+    state: present
+  #ignore_errors: True
+  vars: 
+    packages: 
+    - make
+    - gcc 
+- name: make && install 
+  make:
+    chdir: /tmp/ansible/redis-3.2.11
+    target: install
+    params:
+      PREFIX: /data/apps/redis
+
+- name: mkdir
+  file:
+    dest: /data/apps/redis/{{ item }}
+    state: directory
+  with_items:
+    - conf
+    - logs
+
+- name: add redis user
+  user: 
+    name: redis
+- name: cp redis.conf to /data/apps/redis/conf
+  template:
+    src: redis.j2
+    dest: /data/apps/redis/conf/redis.conf
+   
+- name: chown /data/apps/redis
+  command: chown -R redis.redis /data/apps/redis
+  notify: 
+    - stop redis
+    - start redis
+  tags:
+  - redis

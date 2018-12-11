@@ -1,0 +1,3 @@
+redisport: 6380 
+redisBin: /data/apps/redis/bin
+redislogdir: /data/apps/redis/logs

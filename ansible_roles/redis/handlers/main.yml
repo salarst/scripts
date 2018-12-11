@@ -1,0 +1,12 @@
+- name: stop redis
+  command: ./redis-cli -h {{ ansible_all_ipv4_addresses[0] }} -p "{{ redisport }}" -a "{{ redispassword }}" shutdown
+  args:
+    chdir: "{{ redisBin }}"
+  ignore_errors: True
+- name: start redis
+  command: ./redis-server ../conf/redis.conf
+  args:
+    chdir: "{{ redisBin }}"
+  become_user: redis
+  become_method: su
+  become: yes

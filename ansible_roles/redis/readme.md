@@ -1,0 +1,1 @@
+please download source code redis into files,and modify the value of src of "named uncompress redis.tar.gz" in tasks/main.yml
