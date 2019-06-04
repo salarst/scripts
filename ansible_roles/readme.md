@@ -3,3 +3,9 @@
 - format
 - make filesystem
 - mount
+
+### redis
+---
+- compile
+- install
+- config redis
