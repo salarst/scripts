@@ -1,0 +1,53 @@
+---
+- name: new partitions
+  parted:
+    device: "{{ item.value.dev }}"
+    number: "{{ item.value.num }}"
+    flags: [ "{{ item.value.flag }}" ]
+    state: present
+  with_dict: "{{ disk.partitions }}"
+  tags: t1
+
+- name: install lvm2
+  yum: 
+    name: lvm2
+    state: installed
+  tags: t2
+
+#建立vg，只有当分区格式为lvm时，才建立vg
+- name: create vg
+  lvg:
+    vg: "{{ item.value.vgname }}"
+    pvs: "{{ item.value.dev }}{{ item.value.num }}"
+  with_dict: "{{ disk.partitions }}"  
+  when: item.value.flag  == "lvm"
+  tags: t3
+
+- name: create lv
+  lvol: 
+    vg: "{{ item.value.vgname }}"
+    lv: "{{ item.value.lvname }}"
+    size: 100%FREE
+  with_dict: "{{ disk.partitions }}"
+  tags: t4
+  
+- name: make filesystem
+  filesystem:
+    dev: /dev/mapper/{{ item.value.vgname }}-{{ item.value.lvname }}
+    fstype: "{{ item.value.fstype }}"
+  with_dict: "{{ disk.partitions }}"
+  tags: t5
+
+- name: mount
+  mount:
+    path: "{{ item.value.path }}"
+    src: /dev/mapper/{{ item.value.vgname }}-{{ item.value.lvname }}
+    fstype: "{{ item.value.fstype }}"
+    state: mounted
+  with_dict: "{{ disk.partitions }}"
+  tags: t6
+
+#- name: debug
+#  debug: msg={{ item.value.dev }}{{ item.value.num }}
+#  with_dict: "{{ disk.partitions }}"
+#  tags: debug

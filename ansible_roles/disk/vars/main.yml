@@ -1,0 +1,18 @@
+disk:
+  partitions:
+    p1:
+      dev: /dev/vdb
+      num: 1
+      flag: lvm
+      fstype: xfs
+      path: /data
+      vgname: myvg
+      lvname: mylv
+#      vol: 10GiB
+#    p2:
+#      dev:/dev/vdb
+#      num: 2
+#      type: lvm
+#      fstype: xfs
+#      path: /data
+  
