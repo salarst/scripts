@@ -9,3 +9,4 @@
 - compile
 - install
 - config redis
+- run redis
