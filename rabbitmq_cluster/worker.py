@@ -70,7 +70,7 @@ class worker():
         stdin, stdout, stderr = ssh.exec_command(cmd)
         self.wait_for_finish(stdout)
         if returnStdout:
-            res['stdout'] = stdout
+            res['stdout'] = stdout.read()
         if returnExitStatus:
             res['exitStatus'] = stdout.channel.recv_exit_status()
         if returnStderr:
